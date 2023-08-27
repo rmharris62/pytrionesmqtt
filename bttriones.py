@@ -140,6 +140,13 @@ def mqtt_on_connect(client, userdata, flags, rc):
     logger("MQTT Connected")
     client.subscribe(mqtt_subscription_topic)
 
+def mqtt_on_disconnect(client, userdata, rc):
+    if rc != 0:
+        print("Unexpected disconnection from MQTT.  Terminating.")
+    else:
+        print("MQTT connection has shut down.  Terminating.")
+    sys.exit(rc)
+
 def send_mqtt(mqtt_client,value):
     logger("MQTT: Sending value: %s to topic %s" % (value, mqtt_reporting_topic))
     mqtt_client.publish(mqtt_reporting_topic, value)
@@ -312,6 +319,7 @@ def server():
     if mqtt_server_ip is not None:
         mqtt_client = mqtt.Client()
         mqtt_client.on_connect = mqtt_on_connect
+        mqtt_client.on_disconnect = mqtt_on_disconnect
         mqtt_client.on_message = mqtt_message_received
         if mqtt_username is not None:
             mqtt_client.username_pw_set(mqtt_username, mqtt_password)
